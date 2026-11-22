@@ -25,16 +25,20 @@ export function stageShot(name, state) {
     const wheel = state.wheels[1];
     wheel.turned = true; wheel.angle = Math.PI / 4;
     state.guards[2].coneBent = 0.9;
-    state.alarm = 28; state.pegs = 5;
+    state.alarm = 28; state.peakAlarm = 28; state.pegs = 5;
+    state.tierName = 'TIER 2 · CLOCKWORK NAVE';
     state.gears[0].taken = true; state.gearsCollected = 1; state.score = 100;
     setGuardTime(state, 0.9);
     return SCREEN_PLAY;
   }
   if (name === 'getaway') {
-    // Diamond stolen, thief at the skylight, alarm climbing high.
-    placeThief(state, 1215, 128, 1);
+    // Diamond stolen, thief one step from the skylight, alarm climbing high.
+    // Staged just LEFT of the exit zone so the live loop does not trigger
+    // the win overlay before the screenshot is taken.
+    placeThief(state, 1120, 128, 1);
     state.diamondTaken = true;
-    state.alarm = 86; state.pegs = 1;
+    state.alarm = 86; state.peakAlarm = 86; state.pegs = 1;
+    state.tierName = 'TIER 3 · SUN CHAMBER';
     for (const g of state.gears) g.taken = true;
     state.gearsCollected = 6; state.score = 1600;
     state.wheels[3].turned = true;
@@ -48,7 +52,8 @@ export function stageShot(name, state) {
   state.crouch = true;
   state.wheels[1].turned = true; state.wheels[1].angle = Math.PI / 4;
   state.guards[2].coneBent = 0.9;
-  state.alarm = 62; state.pegs = 4;
+  state.alarm = 62; state.peakAlarm = 62; state.pegs = 4;
+  state.tierName = 'TIER 2 · CLOCKWORK NAVE';
   state.gears[0].taken = true; state.gears[2].taken = true;
   state.gearsCollected = 2; state.score = 200;
   state.time = 42.0;
