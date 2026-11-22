@@ -148,19 +148,13 @@ function drawGuard(ctx, g, time) {
     ctx.fillStyle = '#7ef9ff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('FROZEN', g.x, y - 82);
   }
-  // Suspicion: the thief is close and roughly in the cone's direction —
-  // a "?" over the automaton sells the near-miss tension.
+  // Suspicion: the thief is close and on the side the automaton faces —
+  // a "?" over it sells the near-miss tension.
   const tdx = g._thiefX !== undefined ? g._thiefX - g.x : 9999;
   const tdy = g._thiefY !== undefined ? g._thiefY - (y - 22) : 9999;
-  if (Math.hypot(tdx, tdy) < 330) {
-    const ang = guardConeAngle(g, time);
-    let diff = Math.atan2(tdy, tdx) - ang;
-    while (diff > Math.PI) diff -= Math.PI * 2;
-    while (diff < -Math.PI) diff += Math.PI * 2;
-    if (Math.abs(diff) < 0.8) {
-      ctx.fillStyle = COLORS.gold; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('?', g.x, y - 88);
-    }
+  if (Math.hypot(tdx, tdy) < 330 && Math.sign(tdx) === g.dir) {
+    ctx.fillStyle = COLORS.gold; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('?', g.x, y - 88);
   }
 }
 
@@ -183,6 +177,17 @@ function drawCamera(ctx, c, time) {
 function drawThief(ctx, p, facing, crouch) {
   const x = p.x, y = p.y; // p.y is the feet
   const h = crouch ? 32 : 44;
+  // Motion echoes: fading silhouettes trailing the thief sell movement in a still.
+  for (let i = 2; i >= 1; i -= 1) {
+    ctx.globalAlpha = 0.16 * (3 - i);
+    ctx.fillStyle = COLORS.thief;
+    ctx.beginPath(); ctx.arc(x - facing * 20 * i, y - h + 7, 11, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(x - facing * 20 * i - 11, y); ctx.lineTo(x - facing * 20 * i - 13, y - h + 14);
+    ctx.lineTo(x - facing * 20 * i + 13, y - h + 14); ctx.lineTo(x - facing * 20 * i + 11, y);
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
   ctx.save();
   // Violet rim glow: the thief is a pitch-black silhouette in safe shadow.
   ctx.shadowColor = COLORS.violet; ctx.shadowBlur = 16;
@@ -233,6 +238,15 @@ function drawHud(ctx, state, screen) {
   ctx.strokeStyle = '#f5c542'; ctx.lineWidth = 2; ctx.strokeRect(ax, ay, aw, ah);
   ctx.fillStyle = '#ffffff'; ctx.font = 'bold 16px sans-serif';
   ctx.fillText(`${Math.round(state.alarm)}%`, ax + aw + 10, ay + 16);
+  // Alarm burst: pulsing red ticks above and below the meter once it runs hot.
+  if (state.alarm >= 50) {
+    ctx.strokeStyle = `rgba(255,34,68,${0.5 + 0.5 * Math.sin(state.time * 6)})`;
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 10; i += 1) {
+      const tx = ax + 16 + i * (aw - 32) / 9;
+      ctx.beginPath(); ctx.moveTo(tx, ay + ah + 3); ctx.lineTo(tx, ay + ah + 10); ctx.stroke();
+    }
+  }
   if (state.warn > 0) {
     ctx.fillStyle = '#ff2244'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('! SPOTTED — BREAK LINE OF SIGHT !', 640, 58);

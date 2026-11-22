@@ -48,7 +48,7 @@ export function stageShot(name, state) {
   state.crouch = true;
   state.wheels[1].turned = true; state.wheels[1].angle = Math.PI / 4;
   state.guards[2].coneBent = 0.9;
-  state.alarm = 45; state.pegs = 4;
+  state.alarm = 62; state.pegs = 4;
   state.gears[0].taken = true; state.gears[2].taken = true;
   state.gearsCollected = 2; state.score = 200;
   state.time = 42.0;
